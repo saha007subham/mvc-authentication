@@ -1,10 +1,10 @@
+const JWT = require("jsonwebtoken");
 const crypto = require("crypto");
 const User = require("../models/user.model");
 const {
   userSignupValidationSchema,
   userSigninSchema,
 } = require("../lib/validators/user.validator");
-const { error } = require("console");
 
 exports.handleGetAllUsers = async function (req, res) {
   const users = await User.find({});
@@ -66,5 +66,13 @@ exports.handleUserSignin = async function (req, res) {
   if (hash !== userInDB.password)
     return res.status(400).json({ error: "Incorrect Password" });
 
-  return res.json({ message: `Success in Sign in for ${userInDB.firstname}` });
+  const token = JWT.sign(
+    { id: userInDB._id, email: userInDB.email, role: userInDB.role ?? "user" },
+    JWT_SECRET,
+  );
+
+  return res.json({
+    message: `Success in Sign in for ${userInDB.firstname}`,
+    token,
+  });
 };

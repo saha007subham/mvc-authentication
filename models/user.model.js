@@ -1,4 +1,5 @@
 const { Schema, model } = require("mongoose");
+const { type } = require("node:os");
 
 const userSchema = new Schema(
   {
@@ -19,6 +20,11 @@ const userSchema = new Schema(
         /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
         "Please fill a valid email address",
       ],
+    },
+    role: {
+      type: String,
+      enum: ["admin", "user"],
+      default: "user",
     },
     password: {
       type: String,

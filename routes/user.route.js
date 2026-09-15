@@ -3,6 +3,7 @@ const {
   handleGetAllUsers,
   handleUserSignup,
   handleUserSignin,
+  handleGetCurrentUser,
 } = require("../controllers/user.controller");
 
 const router = express.Router();
