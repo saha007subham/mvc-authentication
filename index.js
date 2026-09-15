@@ -24,7 +24,7 @@ const PORT = 8000;
 // Middleware
 app.use(express.json());
 
-app.get("/", ensureAuthenticated, (req, res) => {
+app.get("/", (req, res) => {
   return res.json({ message: "Success.." });
 });
 
