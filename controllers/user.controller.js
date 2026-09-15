@@ -5,6 +5,7 @@ const {
   userSignupValidationSchema,
   userSigninSchema,
 } = require("../lib/validators/user.validator");
+const { signToken } = require("../lib/auth.lib");
 
 exports.handleGetAllUsers = async function (req, res) {
   const users = await User.find({});
@@ -34,7 +35,9 @@ exports.handleUserSignup = async function (req, res) {
       salt,
     });
 
-    return res.status(201).json({ data: { id: user._id } });
+    const token = signToken({ id: user._id, role: user.role ?? "user" });
+
+    return res.status(201).json({ data: { id: user._id, token } });
   } catch (err) {
     if (err.code === 11000) {
       return res.status(400).json({ error: "Email is already taken" });
@@ -66,10 +69,7 @@ exports.handleUserSignin = async function (req, res) {
   if (hash !== userInDB.password)
     return res.status(400).json({ error: "Incorrect Password" });
 
-  const token = JWT.sign(
-    { id: userInDB._id, email: userInDB.email, role: userInDB.role ?? "user" },
-    JWT_SECRET,
-  );
+  const token = signToken({ id: userInDB._id, role: userInDB.role ?? "user" });
 
   return res.json({
     message: `Success in Sign in for ${userInDB.firstname}`,

@@ -2,6 +2,9 @@ const express = require("express");
 const mongoose = require("mongoose");
 require("dotenv").config();
 
+// Custom Middlewares
+const { ensureAuthenticated } = require("./middlewares/auth.middleware");
+
 // Routes
 const userRoute = require("./routes/user.route");
 
@@ -21,7 +24,7 @@ const PORT = 8000;
 // Middleware
 app.use(express.json());
 
-app.get("/", (req, res) => {
+app.get("/", ensureAuthenticated, (req, res) => {
   return res.json({ message: "Success.." });
 });
 

@@ -5,11 +5,12 @@ const {
   handleUserSignin,
   handleGetCurrentUser,
 } = require("../controllers/user.controller");
+const ensureAuthenticated = require("../middlewares/auth.middleware");
 
 const router = express.Router();
 
 // GET /users
-router.get("/", handleGetAllUsers);
+router.get("/", ensureAuthenticated, handleGetAllUsers);
 
 router.post("/sign-up", handleUserSignup);
 router.post("/sign-in", handleUserSignin);
