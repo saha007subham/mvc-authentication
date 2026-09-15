@@ -1,17 +1,17 @@
 const { verifyToken } = require("../lib/auth.lib");
 
 function ensureAuthenticated(req, res, next) {
-  const header = equal.headers.authorization;
+  const header = req.headers.authorization;
 
-  if (!header) {
+  if (!header || typeof header !== "string") {
     return res
       .status(401)
       .json({ error: "Please authenticate to access this resource" });
   }
 
-  const token = header.split(" ")[1];
+  const [scheme, token] = header.split(" ");
 
-  if (!token) {
+  if (scheme !== "Bearer" || !token) {
     return res
       .status(401)
       .json({ error: "Please authenticate to access this resource" });
@@ -25,7 +25,7 @@ function ensureAuthenticated(req, res, next) {
 
   req.user = payload;
 
-  next();
+  return next();
 }
 
 module.exports = ensureAuthenticated;

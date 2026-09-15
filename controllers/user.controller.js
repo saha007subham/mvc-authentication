@@ -1,5 +1,5 @@
-const JWT = require("jsonwebtoken");
 const crypto = require("crypto");
+const bcrypt = require("bcryptjs");
 const User = require("../models/user.model");
 const {
   userSignupValidationSchema,
@@ -8,8 +8,18 @@ const {
 const { signToken } = require("../lib/auth.lib");
 
 exports.handleGetAllUsers = async function (req, res) {
-  const users = await User.find({});
+  const users = await User.find({}).select("-password -salt");
   return res.json({ users });
+};
+
+exports.handleGetCurrentUser = async function (req, res) {
+  const user = await User.findById(req.user.id).select("-password -salt");
+
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  return res.json({ user });
 };
 
 exports.handleUserSignup = async function (req, res) {
@@ -22,9 +32,8 @@ exports.handleUserSignup = async function (req, res) {
   }
 
   const { firstname, lastname, email, password } = validationResult.data;
-
   const salt = crypto.randomBytes(16).toString("hex");
-  const hash = crypto.createHmac("sha256", salt).update(password).digest("hex");
+  const hash = await bcrypt.hash(password, 12);
 
   try {
     const user = await User.create({
@@ -58,16 +67,14 @@ exports.handleUserSignin = async function (req, res) {
   const userInDB = await User.findOne({ email });
 
   if (!userInDB) {
-    return res.status(404).json({ error: "Email does not exists" });
+    return res.status(404).json({ error: "Email does not exist" });
   }
 
-  const hash = crypto
-    .createHmac("sha256", userInDB.salt)
-    .update(password)
-    .digest("hex");
+  const isPasswordValid = await bcrypt.compare(password, userInDB.password);
 
-  if (hash !== userInDB.password)
+  if (!isPasswordValid) {
     return res.status(400).json({ error: "Incorrect Password" });
+  }
 
   const token = signToken({ id: userInDB._id, role: userInDB.role ?? "user" });
 

@@ -9,12 +9,10 @@ const ensureAuthenticated = require("../middlewares/auth.middleware");
 
 const router = express.Router();
 
-// GET /users
 router.get("/", ensureAuthenticated, handleGetAllUsers);
+router.get("/me", ensureAuthenticated, handleGetCurrentUser);
 
 router.post("/sign-up", handleUserSignup);
 router.post("/sign-in", handleUserSignin);
-
-// GET /users/some [Nested Routes]:
 
 module.exports = router;

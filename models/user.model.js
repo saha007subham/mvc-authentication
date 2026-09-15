@@ -1,18 +1,17 @@
 const { Schema, model } = require("mongoose");
-const { type } = require("node:os");
 
 const userSchema = new Schema(
   {
     firstname: {
       type: String,
-      require: true,
+      required: true,
     },
     lastname: {
       type: String,
     },
     email: {
       type: String,
-      require: true,
+      required: true,
       unique: true,
       trim: true,
       lowercase: true,
@@ -28,12 +27,11 @@ const userSchema = new Schema(
     },
     password: {
       type: String,
-      require: true,
-      // min: [3, "Minimum 3 characters are required"],
+      required: true,
     },
     salt: {
       type: String,
-      require: true,
+      required: true,
     },
   },
   { timestamps: true },
